@@ -1,10 +1,13 @@
 package com.clnews.processor;
 
+import com.clnews.domain.News;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
+import java.util.List;
 
 /**
  * Created with cl-news
@@ -20,7 +23,7 @@ public abstract class NewsPuller {
     /**
      * 统一抽象拉取新闻点的接口
      */
-    abstract void pullNews();
+    abstract List<News> pullNews();
 
     /**
      * 获取页面内容

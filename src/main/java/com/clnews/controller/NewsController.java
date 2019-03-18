@@ -1,6 +1,7 @@
 package com.clnews.controller;
 
 import com.clnews.processor.ToutiaoNewsPuller;
+import com.clnews.service.NewsService;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +27,14 @@ public class NewsController {
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
     @Autowired
-    private ToutiaoNewsPuller toutiaoNewsPuller;
+    private NewsService newsService;
 
 
     @RequestMapping("/toutiao")
     @ResponseStatus(HttpStatus.OK)
     public Object toutiaoNews() {
         Map ret = Maps.newHashMap();
-        toutiaoNewsPuller.pullNews();
+        newsService.pullNews();
         ret.put("news", "toutiao");
         return ret;
     }

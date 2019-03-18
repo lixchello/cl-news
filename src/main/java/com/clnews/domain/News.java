@@ -7,19 +7,30 @@ import java.util.Date;
  * Created with cl-news
  * Created By lxc
  * Date: 2019-03-18
+ *
+ * @author lxc
  */
 public class News implements Serializable {
 
     private static final long serialVersionUID = 7993799811820966212L;
 
+    private Long id;
     private String source;
     private String sourceName;
     private String title;
     private String content;
-    private String url;
-    private String image;
+    private String contentUrl;
+    private String imageUrl;
     private Date createDate;
     private Date updateDate;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getSource() {
         return source;
@@ -53,20 +64,20 @@ public class News implements Serializable {
         this.content = content;
     }
 
-    public String getUrl() {
-        return url;
+    public String getContentUrl() {
+        return contentUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Date getCreateDate() {
@@ -92,8 +103,8 @@ public class News implements Serializable {
                 ", sourceName='" + sourceName + '\'' +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
-                ", url='" + url + '\'' +
-                ", image='" + image + '\'' +
+                ", contentUrl='" + contentUrl + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", createDate=" + createDate +
                 ", updateDate=" + updateDate +
                 '}';

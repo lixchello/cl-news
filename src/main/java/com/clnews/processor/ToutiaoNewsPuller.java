@@ -1,8 +1,8 @@
 package com.clnews.processor;
 
-import com.alibaba.fastjson.JSONObject;
 import com.clnews.domain.News;
 import com.clnews.enums.SourceEnum;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,7 +40,7 @@ public class ToutiaoNewsPuller extends NewsPuller {
     private String newsHotUrl;
 
     @Override
-    public void pullNews() {
+    public List<News> pullNews() {
         logger.info("【今日头条】开始拉取今日头条热门新闻！");
         Document document;
         try {
@@ -47,11 +48,11 @@ public class ToutiaoNewsPuller extends NewsPuller {
         } catch (Exception e) {
             logger.error("【今日头条】获取今日头条热门新闻主页失败！");
             e.printStackTrace();
-            return;
+            return null;
         }
         if (document == null) {
             logger.info("【今日头条】获取今日头条热门新闻主页内容为空！");
-            return;
+            return null;
         }
         Map<String, News> newsMap = Maps.newHashMap();
         Date now = new Date();
@@ -70,14 +71,14 @@ public class ToutiaoNewsPuller extends NewsPuller {
                 n.setSource(SourceEnum.TOU_TIAO.key);
                 n.setSourceName(SourceEnum.TOU_TIAO.name);
                 n.setTitle(title);
-                n.setUrl(href);
-                n.setImage(image);
+                n.setContentUrl(href);
+                n.setImageUrl(image);
                 n.setCreateDate(now);
                 n.setUpdateDate(now);
                 newsMap.put(href, n);
             } else {
                 if (element.hasClass(HTML_IMG_WRAP)) {
-                    news.setImage(image);
+                    news.setImageUrl(image);
                 } else if (element.hasClass(HTML_TITLE)) {
                     news.setTitle(title);
                 }
@@ -90,7 +91,7 @@ public class ToutiaoNewsPuller extends NewsPuller {
             logger.info("【今日头条】===================={}====================", news.getTitle());
             Document contentHtml;
             try {
-                contentHtml = getHtmlFromUrl(news.getUrl(), true);
+                contentHtml = getHtmlFromUrl(news.getContentUrl(), true);
             } catch (Exception e) {
                 logger.error("【今日头条】获取新闻《{}》内容失败！", news.getTitle());
                 return;
@@ -113,6 +114,16 @@ public class ToutiaoNewsPuller extends NewsPuller {
         });
         logger.info("【今日头条】今日头条热门新闻内容拉取完成!");
 
-        System.out.println(JSONObject.toJSONString(newsMap));
+
+        if (newsMap == null) {
+            logger.info("【今日头条】今日头条拉取内容为空!");
+            return null;
+        }
+
+        List<News> newsList = Lists.newArrayList();
+        newsMap.forEach((k, v) -> {
+            newsList.add(v);
+        });
+        return newsList;
     }
 }
