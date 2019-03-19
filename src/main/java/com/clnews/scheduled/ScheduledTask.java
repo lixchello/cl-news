@@ -22,9 +22,7 @@ public class ScheduledTask {
     @Autowired
     private NewsService newsService;
 
-    /**
-     * 每间隔10秒输出时间
-     */
+
     @Scheduled(cron = "* * 0/1 * * ?")
     public void logTime() {
         logger.info("【爬虫定时】开始执行！");
