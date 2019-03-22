@@ -3,6 +3,7 @@ package com.clnews.service.impl;
 import com.clnews.constant.Constant;
 import com.clnews.dao.NewsMapper;
 import com.clnews.domain.News;
+import com.clnews.enums.SourceEnum;
 import com.clnews.processor.ToutiaoNewsPuller;
 import com.clnews.service.NewsService;
 import com.google.common.collect.Lists;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created with cl-news
@@ -33,6 +36,8 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     private ToutiaoNewsPuller toutiaoNewsPuller;
 
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
 
     @Override
     public int insertSelective(News record) {
@@ -51,13 +56,57 @@ public class NewsServiceImpl implements NewsService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void pullNews() {
-        List<News> newsList = toutiaoNewsPuller.pullNews();
-        if (null == newsList || newsList.isEmpty()) {
-            logger.info("【今日头条】拉取内容为空不需要插入!");
-            return;
+
+        for (final SourceEnum sourceEnum : SourceEnum.values()) {
+            if (sourceEnum.key.equalsIgnoreCase(SourceEnum.TOU_TIAO.key)) {
+                executorService.submit(new TtPullTask(sourceEnum));
+            }
+            if (sourceEnum.key.equalsIgnoreCase(SourceEnum.SOU_HU.key)) {
+                executorService.submit(new ShPullTask(sourceEnum));
+            }
         }
-        for (News news : newsList) {
-            newsMapper.insertSelective(news);
+    }
+
+    public class TtPullTask implements Runnable {
+
+        private SourceEnum sourceEnum;
+
+        public TtPullTask(SourceEnum sourceEnum) {
+            this.sourceEnum = sourceEnum;
+        }
+
+        @Override
+        public void run() {
+            List<News> newsList = toutiaoNewsPuller.pullNews();
+            if (null == newsList || newsList.isEmpty()) {
+                logger.info("【{}】拉取内容为空不需要插入!", sourceEnum.name);
+                return;
+            }
+            for (News news : newsList) {
+                newsMapper.insertSelective(news);
+            }
+        }
+    }
+
+    public class ShPullTask implements Runnable {
+
+        private SourceEnum sourceEnum;
+
+        public ShPullTask(SourceEnum sourceEnum) {
+            this.sourceEnum = sourceEnum;
+        }
+
+        @Override
+        public void run() {
+            // TODO: 2019-03-22 添加你写的搜狐的拉取器
+            List<News> newsList = souhuNewsPuller.pullNews();
+            if (null == newsList || newsList.isEmpty()) {
+                logger.info("【{}】拉取内容为空不需要插入!", sourceEnum.name);
+                return;
+            }
+            for (News news : newsList) {
+                newsMapper.insertSelective(news);
+            }
         }
     }
 

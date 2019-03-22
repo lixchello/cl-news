@@ -9,7 +9,10 @@ package com.clnews.enums;
  */
 public enum SourceEnum {
 
-    TOU_TIAO("TOU_TIAO", "今日头条");
+    TOU_TIAO("TOU_TIAO", "今日头条"),
+    SOU_HU("SOU_HU", "搜狐"),
+
+    ;
 
     public final String key;
 
